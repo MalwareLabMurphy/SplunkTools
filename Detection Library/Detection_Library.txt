@@ -1,0 +1,13 @@
+```Detection Library```
+| rest /servicesNS/-/-/saved/searches
+| fields title, search
+```Replace the bracketed text below with the common naming convention for your organization's detections```
+| search title="*[Naming Convention]*"
+```RegEx below assumes the main query parameters will be in the opening lines, prior to any transformations/aggregations... modify as needed for your query practices```
+| rex field=search "(?<main_query>.*|.*)"
+```For the two lines below, replace bracketed text with your input or token if this is for a dashboard (panel)```
+| where like(lower(title), "%[token/keyword]")
+| where like(lower(search), "%[token/keyword]")
+| table title, main_query
+| sort by title
+| rename title as "Detection", main_query as "Main Query"

@@ -1,0 +1,17 @@
+```Linux Auditd Investigation```
+```Replace bracketed text below with standards for Linux Auditd log configuration```
+index=[LINUX INDEX] sourcetype=[AUDITD SOURCETYPE] type=execve OR type=SYSCALL
+| rex field=_raw "a\d+\=+\"(?<y>.*?)\"" max_match=0
+| fields y host type _time auid msg
+| eval cli=mvjoin(y, " "), orig_host=upper(host)
+| stats values(cli) as cli values(eval(strftime(_time, "%Y/%m/%d %H:%M:%S"))) as orig_time values(auid) as auid values(orig_host) as orig_host by msg
+| search cli=*
+```Replace the text below with whatever lookup/macro you are using to associate with "auid" field with a "user" field```
+[ENRICHMENT/ATTRIBUTION LOOKUP]
+| fields auid user orig_host src_category orig_time cli
+```Replace bracketed text below with either text to query against or tokens needed for dashboard (panel)```
+| where like(auid, "%[auid token]")
+| where like(user, "%[user token]")
+| where like(orig_host, "%[host token]")
+| sort orig_time
+| rename orig_host as "Host", user as "User", cli as "Command Line", orig_time as "Time Stamp", src_category as "Category", auid as "AUID"
