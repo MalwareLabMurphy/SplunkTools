@@ -1,0 +1,3 @@
+# Risk Forecast Macro
+A search developed to forecast the effects that a new/proposed RBA risk rule will have on the overall risk ecosystem based on the hosts and users that are present in the output.
+This was designed as a macro to be added to the end of a proposed piece of SPL, however, it could also be repurposed for a standalone search or dashboard panel to save processing power, assuming the inputs can be entered manually, by lookup, etc.

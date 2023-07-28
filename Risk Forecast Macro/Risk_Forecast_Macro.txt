@@ -1,0 +1,18 @@
+```Risk Forecast Macro```
+```For 'user' and 'hostname' below, fields may be substituted by the normalized output based on RBA implementation```
+| table hostname user
+| eval risk_object=mvappend(hostname, user)
+| fields - hostname user
+| mvexpand risk_object
+| dedup risk_object
+```Time frame below can be changed from '7d' depending on how far one wants to forecast the risk that will be accrued. Additionally, 'risk_score' may need to be subsitituted for 'calculated_risk_score' depending on RBA implementation```
+| join [search index=risk earliest=7d
+	| fields risk_object search_name risk_score risk_object_type
+	| stats values(search_name) as risk_rules count sum(risk_score) as total_risk by risk_object risk_object_type
+	```The calculation below can be modified to reflect averages other than daily```
+	| eval avg_daily_risk=total_risk/7
+	```Conditions below can be modified to meet RIR thresholds in one's RBA deployment. In this example, it is configured for an RIR that will produce a notable when the risk score reaches 100 for a given day```
+	| eval forecast=if(avg_daily_risk>99, "Risk Notables Likely", "Risk Notables Unlikely")]
+| sort - total_risk
+| table risk_object risk_object_type risk_rules count total_risk avg_daily_risk forecast
+| rename risk_object as "Risk Object", risk_object_type as "Risk Object Type", risk_rules as "Risk Rules", count as "Risk Events", total_risk as "Total Risk", avg_daily_risk as "Average Daily Risk", forecast as "Notable Forecast"
